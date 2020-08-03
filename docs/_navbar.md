@@ -4,12 +4,6 @@
   - [计算机网络](MyNote/计算机网络笔记/计算机网络.md)
   - [数据库](MyNote/数据库笔记/数据库.md)
   - [阿里云](MyNote/阿里云/阿里云.md)
-<<<<<<< HEAD
-* 代码
-  - [TensorFlow](MyCode/TensorFlow/TensorFlow.md)
-  - [PyTorch](MyCode/PyTorch/PyTorch.md)
-  - [Kreas](MyCode/Keras/Keras.md)
-=======
   - [Git基础](MyNote/Git使用.md)
   - [Linux基础](MyNote/Linux笔记.md)
   
@@ -22,5 +16,4 @@
   - [想跟女朋友一起做的n件事](琐碎/想跟女朋友一起做的n件事.md)
   
     
->>>>>>> 20200803
 
