@@ -21,7 +21,7 @@
     - [阿里云使用记录](MyNote/阿里云/使用记录.md)
 - 踩坑记录
 
-  - [C++使用CUDA的“.cu”文件注意事项](MyBug/C++使用CUDA的".cu"文件注意事项.md)
+  - [C++使用CUDA的“.cu”文件注意事项](MyBug/C++使用CUDA的.cu文件注意事项.md)
 
   - [Win10编译FFmpeg](MyBug/Win10编译FFmpeg.md)
 - 项目记录
