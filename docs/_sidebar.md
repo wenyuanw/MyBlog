@@ -9,23 +9,16 @@
     - [阿里云使用记录](MyNote/阿里云/使用记录.md)
   - [Git基础](MyNote/Git使用.md)
   - [Linux基础](MyNote/Linux笔记.md)
-- 代码记录
+  - [程序式怎样跑起来的](MyNote/ReadBooks/程序是怎样跑起来的.md)
+- 踩坑记录
 
-  - [TensorFlow](MyCode/TensorFlow/TensorFlow.md)
+  - [C++使用CUDA的“.cu”文件注意事项](MyBug/C++使用CUDA的".cu"文件注意事项.md)
 
-  - [PyTorch](MyCode/PyTorch/PyTorch.md)
+  - [Win10编译FFmpeg](MyBug/Win10编译FFmpeg.md)
 
-  - [Kreas](MyCode/Keras/Keras.md)
 - 项目记录
   - [AI-MasKeeper——口罩佩戴检测提醒系统](MyProject/AI-MasKeeper.md)
+  - [简单的视频播放器APP](MyProject/简单的视频播放器APP.md)
 - 杂乱无章
   - [生活琐事](琐碎/日常学习琐事.md)
   - [想跟女朋友一起做的n件事](琐碎/想跟女朋友一起做的n件事.md)
-
-🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽
-
-- -----![](_media/beian.png)粤公网安备 44162202000052号-----
-
-- [----------------**粤ICP备20034822号**----------------](http://www.beian.miit.gov.cn/)
-
-🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽🔽
