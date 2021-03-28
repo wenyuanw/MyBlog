@@ -1,13 +1,8 @@
-<!--
- * @Author: Ran
- * @Date: 2020-08-03 19:26:01
- * @LastEditTime: 2021-03-22 15:46:13
- * @FilePath: \JZofferd:\MyBlog\docs\_sidebar.md
- * @Description: 
--->
 - 学习笔记
 
   - 前端面试资料整理
+    - [做题笔记](文远的面试准备/做题笔记.md)
+    - [网易雷火一面记录](文远的面试准备/网易雷火一面20210325.md)
     - [webpack篇](文远的面试准备/文远的面试准备webpack篇.md)
     - [HTML篇](文远的面试准备/文远的面试准备HTML篇.md)
     - [网络篇](文远的面试准备/文远的面试准备网络篇.md)
@@ -29,7 +24,6 @@
 - 踩坑记录
 
   - [C++使用CUDA的“.cu”文件注意事项](MyBug/C++使用CUDA的.cu文件注意事项.md)
-
   - [Win10编译FFmpeg](MyBug/Win10编译FFmpeg.md)
 - 项目记录
   - [AI-MasKeeper——口罩佩戴检测提醒系统](MyProject/AI-MasKeeper.md)
