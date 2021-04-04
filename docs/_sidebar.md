@@ -19,6 +19,7 @@
     - [算法篇](文远的面试准备/文远的面试准备算法篇.md)
     - [性能优化篇](文远的面试准备/文远的面试准备性能优化篇.md)
     - [面试复盘](文远的面试准备/面试复盘.md)
+  - [你不知道的JS上](MyNote/ReadBooks/你不知道的JS上.md)
   - [Git基础](MyNote/Git使用.md)
   - [Linux基础](MyNote/Linux笔记.md)
   - [程序是怎样跑起来的](MyNote/ReadBooks/程序是怎样跑起来的.md)
