@@ -234,7 +234,7 @@ if(a){
 
 
 
-**定义：当函数可以记住并访问所在的词法作用域时，就产生了闭包，及时函数是在当前词法作用域之外执行。**
+**定义：当函数可以记住并访问所在的词法作用域时，就产生了闭包，即使函数是在当前词法作用域之外执行。**
 
 
 
@@ -431,3 +431,481 @@ for (let i=1; i<=5; i++) {
 ```
 
 这就是**块作用域+闭包**的效果。
+
+
+
+**当函数可以记住并访问所在的词法作用域，即使函数是在当前词法作用域之外执行，这时就产生了闭包。**
+
+
+
+## 关于this
+
+> this 关键字是 JavaScript 中最复杂的机制之一。它是一个很特别的关键字，被自动定义再所有函数的作用域中。但是即使是非常有经验的 JavaScript 开发者也很难说清它到底指向什么。
+
+为什么要用 this ？
+
+**this 提供了一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计得更加简洁并且易于复用。**
+
+this 是在运行时进行绑定得，并不是在编写时绑定，它的上下文取决于函数调用时的各种条件。this 的绑定和函数声明的位置没有任何关系，只取决于函数的调用方式。
+
+当一个函数被调用时，会创建一个活动记录（有时候也称为执行上下文）。这个记录会包含函数在哪里被调用（调用栈）、函数的调用方法、传入的参数等信息。this 就是记录的其中一个属性，会在函数执行的过程中用到。
+
+this 既不指向函数自身，也不指向函数的词法作用域。
+
+**this 实际上是在函数被调用时发生的绑定，它指向什么完全取决于函数在哪里被调用。**
+
+
+
+### this 的绑定规则：
+
+1. **默认绑定**
+
+2. **隐式绑定**
+
+   一个最常见的 this 绑定问题就是被隐式绑定的函数会丢失绑定对象，也就是说它会应用默认绑定，从而把 this 绑定到全局对象或者 undefined 上，取决于是否是严格模式。
+
+   **回调函数丢失 this 绑定是非常常见的。**
+
+3. **显式绑定** call apply
+
+   显式绑定也无法解决丢失绑定的问题。
+
+   **硬绑定**：显式绑定的一个变种，可以解决丢失绑定的问题。
+
+   ```js
+   function foo() {
+   	console.log( this.a );
+   }
+   var obj = {
+   	a:2
+   };
+   var bar = function() {
+   	foo.call(obj);
+   };
+   bar(); // 2
+   // 硬绑定的 bar 不可能再修改它的 this
+   bar.call(window); // 2
+   /*
+   我们创建了函数 bar(),并在它的内部手动调用了 foo.call(obj),因此强制把 foo 的 this 绑定到了 obj。无论之后如何调用函数 bar，它总会手动在 obj 上调用 foo。这种绑定是一种显示的强制绑定，因此我们称之为硬绑定。
+   */
+   ```
+
+   硬绑定的典型应用场景就是创建一个包裹函数，传入所有的参数并返回接收到的所有值。
+
+   ```js
+   function foo(something) {
+   	console.log( this.a, something);
+       return this.a + something;
+   }
+   var obj = {
+   	a: 2
+   };
+   var bar = function() {
+   	return foo.apply(obj, arguments);
+   };
+   var b = bar( 3 );  // 2 3
+   console.log( b );  // 5
+   ```
+
+   另一种使用方法是创建一个可以重复使用的辅助函数**（apply 实现  bind）**：
+
+   ```js
+   function foo(something) {
+   	console.log( this.a, something);
+       return this.a + something;
+   }
+   // 简单的辅助绑定函数
+   function bind(fn, obj) {
+   	return function() {
+   		return fn.apply(obj, arguments);
+       };
+   }
+   var obj = {
+   	a: 2
+   };
+   var bar = bind(foo, obj);
+   var b = bar( 3 );  // 2 3
+   console.log( b );  // 5
+   ```
+
+   由于硬绑定时一种非常常用的模式，所以在 ES5 中提供了内置的方法 Function.prototype.bind，它的用法如下：
+
+   ```js
+   function foo(something) {
+   	console.log( this.a, something);
+       return this.a + something;
+   }
+   var obj = {
+   	a: 2
+   };
+   var bar = foo.bind(obj);
+   var b = bar( 3 );  // 2 3
+   console.log( b );  // 5
+   ```
+
+   
+
+4. **new 绑定**
+
+   在 JavaScript 中，构造函数只是一些使用 new 操作符时被调用的函数。它们并不会属于某个类，也不会实例化一个类。实际上，它们甚至都不能说是一种特殊的函数类型，它们只是被 new 操作符调用的普通函数而已。
+
+   包括内置对象函数（比如 Number(..)）在内的所有函数都可以i用 new 来调用，这种函数调用被称为构造函数调用。这里有一个重要但是非常细微的区别：实际上并不存在所谓的“构造函数”，只有对于函数的“构造调用”。
+
+   **使用 new 来调用函数，或者说发生构造函数调用时，会自动执行下面的操作**：
+
+   1. 创建（或者说构造）一个全新的对象。
+   2. 这个新对象会被执行 [[ 原型 ]] 连接。
+   3. 这个新函数会绑定到函数调用的 this。
+   4. 如果函数没有返回其他对象，那么 new 表达式中的函数调用会自动返回这个新对象。
+
+   ```js
+   function foo(a) {
+   	this.a = a;
+   }
+   var bar = new foo(2);
+   console.log(bar.a); // 2
+   ```
+
+   使用 new 来调用 foo(..) 时，我们会构造一个新对象并把它绑定到 foo(..) 调用中的 this 上。
+
+
+
+### 判断 this的顺序：
+
+1. 函数是否在 new 中调用（new 绑定）？如果是的话 this 绑定的是新创建的对象。
+2. 函数是否通过call、apply （显式绑定）或者硬绑定调用？如果是的话，this 绑定的是指定的对象。
+3. 函数是否在某个上下文对象中调用（隐式绑定）？如果是的话，this 绑定的是那个上下文对象。
+4. 如果都不是的话，使用默认绑定。如果在严格模式下，就绑定到 undefined，否则绑定到全局对象。
+
+> 不过也会有例外。
+
+
+
+### 绑定例外
+
+如果你把 null 或者 undefined 作为 this 的绑定对象传入 call、apply 或者 bind，这些值在调用时会被忽略，实际应用的是默认绑定规则。
+
+#### 被忽略的 this
+
+一种常见的作法是使用 apply(..) 来“展开”一个数组，并当作参数传入一个函数。类似地，bind(..) 可以对参数进行柯里化（预先设置一些参数）
+
+```js
+function foo(a,b) {
+	console.log("a:" + a + ",b:" + b);
+}
+
+// 把数组“展开”成参数
+foo.apply(null, [2,3]); // a:2, b:3
+
+// 使用 bind(..) 进行柯里化
+var bar = foo.bind(null, 2);
+bar(3): // a:2, b:3
+```
+
+这两种方法都需要传入一个参数当作 this 的绑定对象，所以用 null 可能是一个不错的选择。
+
+> 在 ES6 中，可以用 **... 操作符**代替 apply(..) 来“展开”数组，**foo(...[1, 2])** 和 **foo(1, 2)** 是一样的，这样可以避免不必要的 this 绑定。
+>
+> 在 ES6 中没有柯里化的相关语法，因此还需要使用 bind(..)。
+
+然而使用 null 来忽略 this 绑定可能产生一些副作用。如果某个函数确实使用了 this （比如第三方库中的一个函数），那默认绑定规则会把 this 绑定到全局对象（在浏览器中这个对象是 window），中而将导致不可预计的后果（比如修改全局对象）。
+
+显而易见，这种方式可能会导致许多难以分析和追踪的 bug。
+
+#### 更安全的this
+
+一种“更安全”的做法是传入一个特殊的对象，把 this 绑定到这个对象不会对你的程序产生任何副作用。就像网络（以及军队）一样，我们可以创建一个“DMZ”（demilitarized zone，非军事区）对象——**它就是一个空的非委托的对象**。
+
+在 JavaScript 中创建一个空对象最简单的方法都是 Object.create(null)。Object.create(null) 和 {} 很小，但是并不会创建 Object.prototype 这个委托，所以它比 {} “更空”。
+
+#### 间接引用
+
+另一个需要注意的是，你有可能（有意或者无意地）创建一个函数的“间接引用”，在这种情况下，调用这个函数会应用默认绑定规则。
+
+间接引用最容易在赋值时发生：
+
+```js
+function foo() {
+	console.log(this.a);
+}
+var a = 2;
+var o = { a: 3, foo: foo };
+var p = { a: 4 };
+o.foo(); // 3
+(p.foo = o.foo)(); // 2
+```
+
+**赋值表达式 p.foo = o.foo 的返回值是目标函数的引用，因此调用位置是 foo() 而不是 p.foo() 或者 o.foo()。**根据之前说过的，这里会应用默认绑定。
+
+#### 软绑定
+
+可以给默认绑定指定一个全局对象和 undefined 以外的值，可以实现和硬绑定相同的效果，同时保留隐式绑定或者显示绑定修改 this 的能力。
+
+
+
+### this 词法——箭头函数
+
+**箭头函数**不使用 this 的四种标准规则，而是根据外层（函数或者全局）作用域来决定 this。
+
+让我们来看看箭头函数的词法作用域：
+
+```js
+function foo() {
+	// 返回一个箭头函数
+    return (a) => {
+		// this 继承自 foo()
+        console.log(this.a);
+    }
+}
+var obj1 = {
+	a: 2
+};
+var obj2 = {
+	a: 3
+};
+var bar = foo.call(obj1)；
+bar.call( obj2 ); // 2,不是3！
+```
+
+foo() 内部创建的箭头函数会捕获调用时 foo() 的 this。由于 foo() 的 this 绑定到 obj1，bar（引用箭头函数）的 this 也会绑定到 obj1，**箭头函数的绑定无法被修改。（ new 也不行！）**
+
+箭头函数可以像 bind(..) 一样确保函数的 this 被绑定到指定对象，此外，其重要性还体现在它用更常见的语法作用域取代了传统的 this 机制。
+
+
+
+### 小结：
+
+如果要判断一个运行宏函数的 this 绑定，就需要找到这个函数的**直接调用位置**。找到之后就可以顺序应用下面的斯特规则来判断 this 的绑定对象。
+
+1. 由 new 调用？绑定到新创建的对象。
+2. 由 call 或者 apply （或者 bind）调用？绑定到指定的对象。
+3. 由上下文对象调用？绑定到那个上下文对象。
+4. 默认：在严格模式下绑定到 undefined ，否则绑定到全局对象。
+
+一定要注意，有些调用可能在无意中使用默认绑定规则。如果想“更安全”地忽略 this 绑定，你可以使用一个 DMZ 对象，比如：**Ø = Object.create(null)**，以保护全局对象。
+
+ES6 中的箭头函数并不会使用四条标准的绑定规则，而是根据当前的词法作用域来决定this，具体来说，**箭头函数会继承外层函数调用的 this 绑定**（无论 this 绑定到什么）。这其实和 ES6 之前代码中的 self = this 机制一样。
+
+
+
+## 对象
+
+对象可以通过两种形式定义：声明(文字)形式和构造形式。
+
+注意，简单基本类型本身并不是对象。
+
+
+
+**null** 有时会被当作一种对象类型，但是这其实只是语言本身的一个 bug，即**对 null 执行 typeof null 时会返回字符串 “object"**。实际上，null 本身是基本类型。
+
+有一种常见的错误说法是” JavaScript 中万物皆是对象“，这显然是错误的。
+
+> **原理：**
+>
+> 不同的对象在底层都表示为二进制，在 JavaScript 中二进制前三位都为 0 的话会被判断为 object 类型，null 的二进制表示是全 0，自然前三位也是 0，所以执行 typeof 时会返回 ”object“。
+
+
+
+函数就是对象的一个子类型（从技术角度来说就是“可调用的对象”）。JavaScript 中的函数是”一等公民“，因为它们本质上和普通的对象一样（只是可以调用），所以可以像操作其他对象一样操作函数（比如当作另一个函数的参数）。
+
+
+
+### 内置对象
+
+```
+String、Number、Boolean、Object、Function、Array、Date、RegExp、Error
+```
+
+这些内置对象从表现形式来说很像其他语言中的类型（type）或者类（class），比如 Java 中的 String 类。
+
+但是在 JavaScript 中，它们实际上只是一些内置函数。这些内置函数可以当作构造函数来使用，从而可以创建一个对应子类型的新对象。举例来说：
+
+```js
+var strPrimitive = "I am a string";
+typeof strPrimitive; // "string"
+strPrimitive instanceof String; // false
+
+var strObject = new String("I am a string")；
+typeof strObject; // "object"
+strObject instanceof String; // true
+
+// 检查 sub-type 对象
+Object.prototype.toString.call(strObject); // [object String]
+```
+
+原始值 strPrimitive =  "I am a string" 并不是一个对象，它只是一个字面量，并且是一个不可变的值。如果要在这个字面量上执行一些操作，比如获取长度、访问其中某个字符等等，那需要将其转换为 String 对象。
+
+在必要时语言会自动把字符串字面量转换成一个 String 对象，也就是说你并不需要显式创建一个对象。
+
+```js
+var strPrimitive = "I am a string";
+console.log(strPrimitive.length); // 13
+console.log(strPrimitive.charArt(3)); // "m"
+```
+
+使用以上两种方法，我们都可以直接在字符串字面量上访问属性或者方法，之所以可以这样做，是因为搜索引擎自动把字面量转换成 String 对象，所以可以访问属性和方法。
+
+同样的事也会发生在数值字面量上，如果使用类似 42.359.toFixed(2) 的方法，引擎会把 42 转换成 new Number(42)。对于布尔字面量来说也是如此。
+
+**null 和 undefined 没有对应的构造形式，它们只有文字形式。相反，Date 只有构造，没有文字形式。**
+
+对于 Object、Array、Function 和 RegExp 来说，无论使用文字形式还是构造形式，它们都是对象，不是字面量。
+
+Error 对象很少在代码中显式创建，一般是在抛出异常时被自动创建。
+
+
+
+### 内容
+
+对象的内容是由一些存储在特定命名位置的（任意类型的）值组成的，我们称之为属性。
+
+需要强调的一点是，当我们说”内容“时，似乎在暗示这些值实际上被存储在对象内部，但是这只是它的表现形式。在引擎内部，这些值的存储方式时多种多样的，一般并不会存在对象容易内部，存储在对象容器内部的是这些属性的名称，它们就像指针（从技术角度来说是就是引用）一样，指向这些值真正的存储位置。
+
+```js
+var myObject = {
+	a: 2
+};
+myObject.a; // 2
+myObject["a"]; // 2
+```
+
+如果需要访问 myObject 中 a 位置上的值，我们需要使用 `.` 操作符或者 `[]`操作符。.a 语法通常被称为”属性访问“，["a"] 语法通常被称为“键访问”。
+
+这两种语法的主要区别在于 **. 操作符要求属性名满足标识符的命名规范**，而 [".."] 语法 可以接收任意 UTF-8/Unicode 字符串作为属性名。举例来说，如果要引用名称为 ”Super-Fun!“ 的属性，那就必须使用 [”Super-Fun!“] 语法访问，因为 Super-Fun! 并不是一个有效的标识符属性名。
+
+**在对象中，属性名永远都是字符串。**如果你使用 string（字面量）以外的其他值作为属性名，那么它首先会被转换为一个字符串。即使是数字也不例外。
+
+#### 可计算属性名
+
+ES6 中增加了可计算属性名，可以在文字形式中使用 [] 包裹一个表达式来当作属性名：
+
+```js
+var prefix = "foo";
+var myObject = {
+	[prefix + "bar"]: "hello",
+    [prefix + "baz"]: "world"
+};
+myObject["foobar"]; // hello
+myObject["foobaz"]; // world
+```
+
+#### 属性与方法
+
+无论返回值是什么类型，每次访问对象的属性就是属性访问。如果属性访问返回的是一个函数，那它也并不是一个“方法”。属性访问返回的函数和其他函数没有任何区别（除了可能发生的隐式绑定 this ）
+
+举例来说：
+
+```js
+function foo() {
+	console.log("foo");
+}
+var someFoo = foo; // 对 foo 的变量引用
+var myObject = {
+	someFoo: foo
+};
+foo; // function foo(){..}
+someFoo;  // function foo(){..}
+myObject.someFoo; // function foo(){..}
+```
+
+someFoo 和 myObject.someFoo 只是对于同一个函数的不同引用，并不能说明这个函数是特别的或者“属于”某个对象。如果 foo() 定义时在内部有一个 this 引用，那这两个函数引用的唯一区别就是 myObject.someFoo 中的 this 会被隐式绑定到一个对象。无论哪种引用形式都不能称之为“方法”。
+
+#### 数组
+
+数组也是对象，所以虽然每个下标都是整数，你仍可以给数组添加属性：
+
+```js
+var myArray = ["foo",42,"bar"];
+myArray.baz = "baz";
+myArray.length; // 3
+myArray.baz; // "baz"
+```
+
+可以看到虽然添加了命名属性（无论是通过 . 语法还是 [] 语法），数组的 length 值并未发生变化。
+
+注意：如果你试图向数组添加一个属性，但是属性名“看起来”像一个数组，那么它会变成一个数指下标（因此会修改数组的内容而不是添加一个属性）：
+
+```js
+var myArray = ["foo",42,"bar"];
+myArray["3"] = "baz";
+myArray.length; // 4
+myArray[3]; // "baz"
+```
+
+#### 复制对象
+
+如何复制一个对象是一个常见问题。
+
+举例来说，思考以下这个对象：
+
+```js
+function anotherFunction() { /*..*/ }
+var antherObject = {
+	c = true
+};
+var anthorArray = [];
+var myObject = {
+    a: 2,
+    b: antherObject, // 引用，不是副本！
+    c: antherArray, // 另一个引用
+    d: anotherFunction
+};
+antherArray.push(antherObject, myObject);
+```
+
+如何准确地表示 myObject 的复制呢？
+
+首先，我们应该判断它是浅复制还是深复制。
+
+对于**浅拷贝**来说，复制出的新对象中 a 的值会复制旧对象中 a 的值，也就是 2，但是新对象中 b、c、d 三个属性其实只是三个引用，它们和就对象中的 b、c、d 引用的对象是一样的。
+
+对于**深拷贝**来说，除了复制 myObject 以外还会复制 antherObject 和 antherArray。这时问题就来了，antherArray 引用了 antherObject 和 myObject，所以又需要复制 myObject ，这样就**会由于循环引用而导致死循环**。
+
+解决方法：
+
+对于 JSON 安全（也就是说可以被序列化为一个 JSON 字符串并且可以根据这个字符串解析出一个结构和值完全一样的对象）的对象来说，有一种巧妙的复制方法：
+
+```js
+var myObj = JSON.parse( JSON.stringify( someObj ) );
+```
+
+当然这种方法需要保证对象是 JSON 安全的，所以只适用于部分情况。
+
+
+
+相比深拷贝，浅拷贝非常移动并且问题要少得多，所以 ES6 定义了 Object.assign(..) 方法来实现浅拷贝。
+
+Object.assign(..) 方法的第一个参数是目标对象，之后还可以跟一个或多个源对象。它会遍历一个或多个源对象的所有可枚举（enumerable）的自有键（owned key）并把它们复制（使用 = 操作符赋值）到目标对象，最后返回目标对象。
+
+```js
+var newObj = Object.assign( {}, myObject );
+
+newObj.a; // 2
+newObj.b == antherObject; // true
+newObj.c == antherArray; // true
+newObj.d == anotherFunction; // true
+```
+
+> 但是需要注意一点，由于 Object.assign(..) 就是使用 = 操作符来复制，所以源对象属性的一些特性（比如 writable）不会被复制到目标对象。
+
+#### 属性描述符
+
+在 ES5 之前，JavaScript 语言本身并没有提供可以直接检测属性特性的方法，比如判断属性是否是只读。
+
+但是从 ES5 开始，所有的属性都具备了属性描述符。
+
+```js
+var myObject = {
+	a: 2
+};
+Object.getOwnPropertyDescriptor( myObject, "a");
+/*
+{
+	value: 2,
+	writable: true,
+	enumerable: true,
+	configurable: true
+}
+*/
+```
+
