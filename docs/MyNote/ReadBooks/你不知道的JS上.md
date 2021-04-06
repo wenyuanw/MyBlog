@@ -1551,3 +1551,52 @@ Object.create(..) 的第二个参数制定了需要添加到新对象中的属�
 
 首先你会定义一个名为 Task 的**对象**，它会包含所有任务都可以使用（写作使用，读作委托）的具体行为。接着，对于每个任务（“XYZ”、“ABC”等）你都会定义一个对象来存储对应的数据和行为。你会把特定的任务对象都关联到 Task **功能对象**是，让它们在需要的时候可以进行**委托**。
 
+基本上你可以想想成，执行任务 “XYZ” 需要两个兄弟对象（XYZ 和 Task）协作完成。但是我们并不需要把这些行为放在一起，通过类的复制，我们可以把它们分别放在各自独立的对象中，需要时可以允许 XYZ 对象委托给 Task。
+
+下面是推荐的代码形式：
+
+```js
+Task = {
+	setID: function(ID) { this.id = ID; },
+    putputID: function() { console.log( this.id ); }
+};
+// 让 XYZ 委托 Task
+XYZ = Object.create( Task );
+
+XYZ.prepareTask = function(ID,Label) {
+    this.setID(ID);
+    this.label = Label;
+};
+XYZ.outputTaskDetails = function() {
+	this.outputID();
+    console.log(this.label);
+};
+// ABC = Object.create( Task );
+// ABC ... = ...
+```
+
+在这段代码中，Task 和 XYZ 并不是类（或者函数），它们是对象。XYZ 通过 Object.create(..) 创建，它的 [[Prototype]] 委托了 Task 对象。
+
+相比于面向类（或者说面向对象），我会把这种编码风格称为“对象关联”。我们真正关心的只是 XYZ 对象（和 ABC 对象）委托了 Task 对象。
+
+对象关联风格的代码的不同之处：
+
+1. 在上面的代码中，id 和 label 数据成员都是直接存储在 XYZ 上（而不是 Task）。通常来说，在 [[Prototype]] 委托中最好把状态保存在委托者（XYZ、ABC）而不是委托目标（Task）上。
+
+2. 在委托行为中，我们会尽量避免在 [[Prototype]] 链的不同级别中使用相同的命名，否则就需要使用笨拙并且脆弱的语法来消除引用歧义。
+
+   这个设计模式要求尽量少使用容易被重写的通用方法名，提倡使用更有描述性的方法名，尤其是要写清相应对象行为的类型。这样做实际上可以创建出更容易理解和维护的代码，因为方法名更加清晰。
+
+3. this.setID(ID)；XYZ 中的方法首先会寻找 XYZ 自身是否有 setID(..)，但是 XYZ 中并没有这个方法名，因此会通过 [[Prototype]]  委托关联到 Task 继续寻找，这时就可以找到 setID(..) 方法。此外，由于调用位置触发了 this 的隐式绑定规则，因此虽然 setID(..) 方法在 Task 中，运行时 this 仍然会绑定到 XYZ 。
+
+   换句话说，我们和 XYZ 进行交互时可以使用 Task 中的通用方法，因为 XYZ 委托了 Task。
+
+**委托行为**意味着某些对象（XYZ）在找不到属性或者方法引用时会把这个请求委托给另一个对象（Task）。
+
+**互相委托（禁止）**
+
+你无法在两个或两个以上互相（双向）委托的对象之间创建循环委托。如果你把 B 关联到 A 然后试着把 A 关联到 B，就会出错。
+
+对象关联风格的代码，只关注一件事：**对象之间的关联关系。**
+
+对象关联可以更好地支持关注分离（separation of concerns）原则，创建和初始化并不需要合并为一个步骤。
