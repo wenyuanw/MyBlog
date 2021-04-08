@@ -1,9 +1,9 @@
 * Translation
   
-  * [中文](../README.md)
+  * Chinese
   
 * Notes
 
-  * [FindJobs](MyNote/findJob/找工作记录.md)
+  * [test2](../en-articles/test2.md)
 
 
