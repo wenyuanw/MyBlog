@@ -1,9 +1,9 @@
 * Translation
   
-  * Chinese
+  * [Chinese](../README.md)
   
 * Notes
 
-  * [test2](../en-articles/test2.md)
+  * [test2](en-articles/test2.md)
 
 
