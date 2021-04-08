@@ -1,7 +1,3 @@
-* Translation
-  
-  * [English](en/README.md)
-  
 * 笔记
   
   * [求职记录](MyNote/findJob/找工作记录.md)
