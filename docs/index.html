@@ -2,7 +2,7 @@
  * @Author: Ran
  * @Date: 2020-08-03 19:26:01
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-04-08 14:11:33
+ * @LastEditTime: 2021-04-08 14:20:57
  * @FilePath: \JZofferd:\MyBlog\docs\index.html
  * @Description: 
 -->
@@ -21,19 +21,6 @@
 
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.css">
 
-    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/gitalk.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
-    <script>
-        const gitalk = new Gitalk({
-            clientID: '063b57fdc19fa554f3bd',
-            clientSecret: '6e88a76f93ea8d5f0bf278cb7dc928be9e4c9368',
-            repo: 'gitalk_repo',
-            owner: 'wenyuanw',
-            admin: ['wenyuanw'],
-            // facebook-like distraction free mode
-            distractionFreeMode: false
-        })
-    </script>
 </head>
 
 <body>
@@ -62,6 +49,20 @@
     <script src="//unpkg.com/docsify/lib/plugins/zoom-image.js"></script>
     <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
 
+
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/gitalk.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
+    <script>
+        const gitalk = new Gitalk({
+            clientID: '063b57fdc19fa554f3bd',
+            clientSecret: '6e88a76f93ea8d5f0bf278cb7dc928be9e4c9368',
+            repo: 'MyBlog',
+            owner: 'wenyuanw',
+            admin: ['wenyuanw'],
+            // facebook-like distraction free mode
+            distractionFreeMode: false
+        })
+    </script>
 </body>
 
 </html>
