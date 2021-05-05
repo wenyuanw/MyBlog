@@ -71,3 +71,228 @@ forEach([1,2,3,4,5,6,7],(number) => {
 })
 ```
 
+
+
+# 闭包与高阶函数
+
+ **once 函数**
+
+```js
+const once = (fn) => {
+    let done = false;
+    
+    return function () {
+		return done ? undefined : ((done = true), fn.apply(this, arguments))
+    }
+}
+```
+
+**memoized 函数**
+
+```js
+const memoiaed = (fn) => {
+	const lookupTable = {};
+    
+    return (arg) => lookupTable[arg] || (lookupTable[arg] = fn(arg));
+}
+```
+
+
+
+# 数组的函数式编程
+
+**map**
+
+```js
+const map = (array, fn) => {
+    let results = []
+    for(const value of array)
+        results.push(fn(value))
+    
+    return results;
+}
+```
+
+
+
+**filter**
+
+```js
+const filter = (array, fn) => {
+    let results = []
+    for(const value of array)
+		(fn(vallue)) ? results.push(value) : undefined
+    
+    return results;
+}
+```
+
+
+
+**concatAll**
+
+```js
+const concatAll = (array, fn) => {
+    let results = []
+    for(const value of array)
+		results.push.apply(results, value);
+    
+    return results;
+}
+```
+
+
+
+**reduce**
+
+```js
+const reduce = (array, fn) => {
+	let accumlator = 0;
+    for(const value of array)
+        accumlator = fn(accumlator, value)
+    
+    return [accumlator]
+}
+```
+
+
+
+**zip**
+
+```js
+const zip = (leftArr, rightArr) => {
+	let index, results = [];
+    
+    for (index = 0; index < Math.min(leftArr.length, rightArr.length); index++)
+        results.push(fn(leftArr[index], right[index]));
+    
+    return results;
+}
+```
+
+
+
+# 柯里化与偏应用
+
+柯里化是把一个多参数函数转换为一个嵌套的一元函数的过程
+
+
+
+**把多参数函数转换为一元函数的 curry 函数**
+
+```js
+let curry = (fn) => {
+	if(typeof fn !== 'function'){
+		throw Error('No function provided');
+    }
+    return function curriedFn(...args) {
+        if(args.length < fn.length) {
+			return function() {
+				return curriedFn.apply(null, args.concat([].slice.call(arguments) ));
+            };
+        }
+        return fn.apply(null,args);
+    };
+};
+```
+
+
+
+**偏函数定义**
+
+```js
+const partial = function (fn, ...partialArgs) {
+	let args = partialArgs;
+    return function(...fullArguments) {
+		let arg = 0;
+        for (let i = 0; i < args.length && arg < fullArguments.length; i++) {
+            if (args[i] === undefined) {
+				args[i] = fullArguments[arg++];
+            }
+        }
+        return fn.apply(null, args);
+    }
+}
+```
+
+
+
+# 组合与管道
+
+**组合多个函数**
+
+```js
+const compose = (...fns) => 
+	(value) => 
+		reduce(fns.reverse(),(acc, fn) => fn(acc), value);
+```
+
+
+
+**pipe 函数的定义**
+
+```js
+const pipe = (...fns) => 
+	(value) => 
+		reduce(fns,(acc, fn) => fn(acc), value);
+```
+
+
+
+# 函子(Functor)
+
+函子时一个普通对象（在其他语言中，可能是一个类），它实现了 map 函数，在遍历每个对象值的时候生成一个新对象。
+
+
+
+**MayBe 函数的定义**
+
+```js
+const MayBe = function(val) {
+	this.value = val;
+}
+
+MayBe.of = function(val) {
+	retuen new MayBe(val);
+}
+```
+
+
+
+**Either 函子**
+
+```js
+const Nothing = function(val) {
+	this.value = val;
+};
+
+Nothing.of = function(val) {
+	retuen new Nothing(val);
+};
+
+Nothing.prototype.map = function(f) {
+	return this;
+};
+
+const Some = function(val) {
+	this.value = val;
+};
+
+Some.of = function(val) {
+	retuen new Some(val);
+};
+
+Some.prototype.map = function(f) {
+	return Some.of(fn(this.value));
+};
+
+const Either = {
+    Some: Some,
+    Nothing: Nothing
+}
+```
+
+
+
+end 20210505
+
